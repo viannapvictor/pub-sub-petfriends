@@ -2,8 +2,6 @@ package br.edu.infnet.petfriends.infrastructure.messaging;
 
 import br.edu.infnet.petfriends.domain.eventos.AgendamentoCanceladoEvent;
 import br.edu.infnet.petfriends.domain.eventos.AgendamentoCriadoEvent;
-import br.edu.infnet.petfriends.domain.eventos.AgendamentoConfirmadoEvent;
-import br.edu.infnet.petfriends.domain.eventos.AgendamentoConcluidoEvent;
 import br.edu.infnet.petfriends.domain.eventos.DomainEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.spring.pubsub.core.PubSubTemplate;
@@ -73,40 +71,25 @@ public class AgendamentoMessageService {
             @Header(GcpPubSubHeaders.ORIGINAL_MESSAGE) ConvertedBasicAcknowledgeablePubsubMessage<DomainEvent> message) {
 
         try {
-            LOG.info("DOMAIN EVENT RECEBIDO DO PUB/SUB");
-            LOG.info("Tipo Evento: {}", evento.getTipoEvento());
-            LOG.info("Event ID: {}", evento.getEventId());
-            LOG.info("Agregado ID: {}", evento.getAgregadoId());
-            LOG.info("Ocorrido em: {}", evento.getOcorridoEm());
+            LOG.info("Evento recebido do Pub/Sub: {} (ID: {})", evento.getTipoEvento(), evento.getAgregadoId());
+            LOG.debug("Event ID: {}, Ocorrido em: {}", evento.getEventId(), evento.getOcorridoEm());
 
             if (evento instanceof AgendamentoCriadoEvent) {
                 AgendamentoCriadoEvent criado = (AgendamentoCriadoEvent) evento;
-                LOG.info("Agendamento ID: {}", criado.getAgendamentoId());
-                LOG.info("Cliente ID: {}", criado.getClienteId());
-                LOG.info("Profissional ID: {}", criado.getProfissionalId());
-                LOG.info("Data: {}", criado.getDataAgendamento());
-                LOG.info("Tipo Serviço: {}", criado.getTipoServico());
-                LOG.info("Valor: {}", criado.getValor());
-            } else if (evento instanceof AgendamentoConfirmadoEvent) {
-                AgendamentoConfirmadoEvent confirmado = (AgendamentoConfirmadoEvent) evento;
-                LOG.info("Agendamento ID: {}", confirmado.getAgendamentoId());
-                LOG.info("Profissional ID: {}", confirmado.getProfissionalId());
+                LOG.debug("Detalhes - Cliente: {}, Profissional: {}, Data: {}, Servico: {}, Valor: {}",
+                        criado.getClienteId(), criado.getProfissionalId(), criado.getDataAgendamento(),
+                        criado.getTipoServico(), criado.getValor());
             } else if (evento instanceof AgendamentoCanceladoEvent) {
                 AgendamentoCanceladoEvent cancelado = (AgendamentoCanceladoEvent) evento;
-                LOG.info("Agendamento ID: {}", cancelado.getAgendamentoId());
-                LOG.info("Motivo: {}", cancelado.getMotivoCancelamento());
-                LOG.info("Cancelado pelo cliente: {}", cancelado.isCanceladoPeloCliente());
-            } else if (evento instanceof AgendamentoConcluidoEvent) {
-                AgendamentoConcluidoEvent concluido = (AgendamentoConcluidoEvent) evento;
-                LOG.info("Agendamento ID: {}", concluido.getAgendamentoId());
-                LOG.info("Profissional ID: {}", concluido.getProfissionalId());
+                LOG.info("Cancelamento - Motivo: {}, Cliente: {}", 
+                        cancelado.getMotivoCancelamento(), cancelado.isCanceladoPeloCliente());
             }
 
             message.ack();
-            LOG.info("Domain Event processado e confirmado (ACK)");
+            LOG.debug("Evento processado e confirmado (ACK)");
 
         } catch (Exception e) {
-            LOG.error("Erro ao processar mensagem do Pub/Sub", e);
+            LOG.error("Erro ao processar mensagem do Pub/Sub: {}", evento.getTipoEvento(), e);
             message.nack();
         }
     }
@@ -117,11 +100,7 @@ public class AgendamentoMessageService {
         pubSubTemplate.setMessageConverter(messageConverter);
         pubSubTemplate.publish(TOPIC_NAME, evento);
 
-        LOG.info("DOMAIN EVENT PUBLICADO NO PUB/SUB");
-        LOG.info("Topic: {}", TOPIC_NAME);
-        LOG.info("Tipo Evento: {}", evento.getTipoEvento());
-        LOG.info("Event ID: {}", evento.getEventId());
-        LOG.info("Agregado ID: {}", evento.getAgregadoId());
-        LOG.info("Ocorrido em: {}", evento.getOcorridoEm());
+        LOG.info("Evento publicado no Pub/Sub: {} (ID: {})", evento.getTipoEvento(), evento.getAgregadoId());
+        LOG.debug("Event ID: {}, Topic: {}, Ocorrido em: {}", evento.getEventId(), TOPIC_NAME, evento.getOcorridoEm());
     }
 }

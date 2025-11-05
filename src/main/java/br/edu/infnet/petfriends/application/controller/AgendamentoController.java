@@ -293,15 +293,11 @@ public class AgendamentoController {
         List<DomainEvent> eventos = agendamento.getDomainEvents();
 
         for (DomainEvent evento : eventos) {
-            LOG.info("Domain Event: {}", evento.getTipoEvento());
-
             try {
                 eventStoreService.salvar(evento, "Agendamento", "SYSTEM");
-
                 messageService.publicarEvento(pubSubTemplate, messageConverter, evento);
-
             } catch (Exception e) {
-                LOG.error("Erro ao processar evento: {}", e.getMessage(), e);
+                LOG.error("Erro ao processar evento {}: {}", evento.getTipoEvento(), e.getMessage(), e);
             }
         }
 

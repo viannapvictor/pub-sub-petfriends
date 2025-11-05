@@ -61,27 +61,27 @@ public class EventStoreService {
 
     @Transactional(readOnly = true)
     public List<StoredEvent> buscarHistorico(Long agregadoId) {
-        LOG.info("Buscando histórico de eventos para agregado: {}", agregadoId);
+        LOG.debug("Buscando historico de eventos para agregado: {}", agregadoId);
         List<StoredEvent> eventos = repository.findByAgregadoIdOrderByOcorridoEmAsc(agregadoId);
-        LOG.info("Encontrados {} eventos", eventos.size());
+        LOG.debug("Encontrados {} eventos para agregado {}", eventos.size(), agregadoId);
         return eventos;
     }
 
     @Transactional(readOnly = true)
     public List<StoredEvent> buscarPorTipo(String tipoEvento) {
-        LOG.info("Buscando eventos do tipo: {}", tipoEvento);
+        LOG.debug("Buscando eventos do tipo: {}", tipoEvento);
         return repository.findByTipoEventoOrderByOcorridoEmDesc(tipoEvento);
     }
 
     @Transactional(readOnly = true)
     public List<StoredEvent> buscarPorPeriodo(LocalDateTime inicio, LocalDateTime fim) {
-        LOG.info("Buscando eventos entre {} e {}", inicio, fim);
+        LOG.debug("Buscando eventos entre {} e {}", inicio, fim);
         return repository.findByPeriodo(inicio, fim);
     }
 
     @Transactional(readOnly = true)
     public List<StoredEvent> buscarHistoricoAte(Long agregadoId, LocalDateTime ate) {
-        LOG.info("Buscando histórico do agregado {} até {}", agregadoId, ate);
+        LOG.debug("Buscando historico do agregado {} ate {}", agregadoId, ate);
         return repository.findByAgregadoIdUntil(agregadoId, ate);
     }
 
@@ -92,7 +92,7 @@ public class EventStoreService {
 
     @Transactional(readOnly = true)
     public List<StoredEvent> buscarPorTipoAgregado(String tipoAgregado) {
-        LOG.info("Buscando eventos do tipo de agregado: {}", tipoAgregado);
+        LOG.debug("Buscando eventos do tipo de agregado: {}", tipoAgregado);
         return repository.findByTipoAgregadoOrderByOcorridoEmDesc(tipoAgregado);
     }
 }
